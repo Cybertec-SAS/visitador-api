@@ -56,25 +56,4 @@ class Farm extends Model
     {
         return $this->hasMany(FarmContact::class);
     }
-
-    public function structures(): HasMany
-    {
-        return $this->hasMany(Structure::class);
-    }
-
-    public function galpones(): HasMany
-    {
-        return $this->hasMany(Structure::class)
-            ->where('structure_type', Structure::TYPE_GALPON)
-            ->whereNull('parent_structure_id')
-            ->orderBy('sort_order')
-            ->orderBy('name');
-    }
-
-    public function syncTotalGalponesFromStructures(): void
-    {
-        $this->forceFill([
-            'total_galpones' => $this->galpones()->count(),
-        ])->saveQuietly();
-    }
 }

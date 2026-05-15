@@ -111,7 +111,9 @@ return new class extends Migration
 
     private function restoreProgressReportVisitReference(): void
     {
-        if (! Schema::hasTable('progress_reports') || Schema::hasColumn('progress_reports', 'visit_id')) {
+        if (! Schema::hasTable('progress_reports')
+            || ! Schema::hasTable('visits')
+            || Schema::hasColumn('progress_reports', 'visit_id')) {
             return;
         }
 

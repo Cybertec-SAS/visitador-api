@@ -12,7 +12,6 @@ class ProgressReportItem extends Model
 
     protected $fillable = [
         'progress_report_id',
-        'structure_id',
         'section_name',
         'activity_code',
         'activity_name',
@@ -25,10 +24,5 @@ class ProgressReportItem extends Model
     public function report(): BelongsTo
     {
         return $this->belongsTo(ProgressReport::class, 'progress_report_id');
-    }
-
-    public function structure(): BelongsTo
-    {
-        return $this->belongsTo(Structure::class);
     }
 }

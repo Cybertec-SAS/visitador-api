@@ -7,7 +7,6 @@ use App\Http\Controllers\FarmController;
 use App\Http\Controllers\FarmGeorreferenceController;
 use App\Http\Controllers\ProgressReportController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\StructureController;
 use App\Http\Controllers\SystemsCatalogController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,15 +24,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('farms', FarmController::class);
     Route::apiResource('farm-georreferences', FarmGeorreferenceController::class);
     Route::apiResource('farm-contacts', FarmContactController::class);
-    Route::apiResource('structures', StructureController::class);
 
     // Catalogs
     Route::apiResource('systems-catalog', SystemsCatalogController::class);
 
     // Projects & progress
     Route::apiResource('projects', ProjectController::class);
-    Route::get('projects/{project}/structures', [StructureController::class, 'indexByProject']);
-    Route::post('projects/{project}/structures', [StructureController::class, 'syncProjectStructures']);
-    Route::delete('projects/{project}/structures/{structure}', [StructureController::class, 'detachFromProject']);
     Route::apiResource('projects.progress-reports', ProgressReportController::class)->shallow();
 });

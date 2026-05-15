@@ -97,7 +97,7 @@ class ClientDataModuleTest extends TestCase
         ]);
     }
 
-    public function test_structures_enforce_galpon_system_hierarchy_and_sync_galpon_count(): void
+    public function test_structure_endpoints_are_unavailable_and_farm_payload_stays_flat(): void
     {
         $this->authenticate();
 
@@ -112,81 +112,18 @@ class ClientDataModuleTest extends TestCase
             'client_id' => $client->id,
             'nombre' => 'Finca Demo',
             'farm_voltage' => '220V',
+            'total_galpones' => 4,
         ]);
 
-        $galponResponse = $this->postJson('/api/structures', [
-            'farm_id' => $farm->id,
-            'structure_type' => 'galpon',
-            'name' => 'Galpon Norte',
-            'status' => 'active',
-            'dimensions_json' => [
-                'largo' => 120,
-                'ancho' => 15,
-                'alto' => 4.5,
-            ],
-            'technical_attributes_json' => [
-                'tipo_estructura' => 'metalica',
-            ],
-            'observations' => 'requiere extractor nuevo',
-        ]);
-
-        $galponResponse
-            ->assertCreated()
-            ->assertJsonPath('structure_type', 'GALPON')
-            ->assertJsonPath('name', 'GALPON NORTE')
-            ->assertJsonPath('dimensions_json.area_total', 1800)
-            ->assertJsonPath('technical_attributes_json.tipo_estructura', 'METALICA')
-            ->assertJsonPath('observations', 'REQUIERE EXTRACTOR NUEVO');
-
-        $galponId = $galponResponse->json('id');
-
-        $systemResponse = $this->postJson('/api/structures', [
-            'farm_id' => $farm->id,
-            'parent_structure_id' => $galponId,
-            'structure_type' => 'system',
-            'name' => 'Ventilacion Tunel',
-            'status' => 'active',
-        ]);
-
-        $systemResponse
-            ->assertCreated()
-            ->assertJsonPath('structure_type', 'SYSTEM')
-            ->assertJsonPath('name', 'VENTILACION TUNEL')
-            ->assertJsonPath('parent_structure_id', $galponId);
-
-        $invalidSystemResponse = $this->postJson('/api/structures', [
-            'farm_id' => $farm->id,
-            'structure_type' => 'system',
-            'name' => 'Sistema Huerfano',
-        ]);
-
-        $invalidSystemResponse
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['parent_structure_id']);
-
-        $farm->refresh();
-
-        self::assertSame(1, $farm->total_galpones);
+        $this->getJson('/api/structures')->assertNotFound();
 
         $farmResponse = $this->getJson("/api/farms/{$farm->id}");
 
         $farmResponse
             ->assertOk()
-            ->assertJsonPath('data.total_galpones', 1)
-            ->assertJsonPath('data.galpones.0.name', 'GALPON NORTE')
-            ->assertJsonPath('data.galpones.0.systems.0.name', 'VENTILACION TUNEL');
+            ->assertJsonPath('data.total_galpones', 4);
 
-        $this->assertDatabaseHas('structures', [
-            'id' => $galponId,
-            'structure_type' => 'GALPON',
-            'name' => 'GALPON NORTE',
-        ]);
-
-        $this->assertDatabaseHas('structures', [
-            'parent_structure_id' => $galponId,
-            'structure_type' => 'SYSTEM',
-            'name' => 'VENTILACION TUNEL',
-        ]);
+        self::assertArrayNotHasKey('galpones', $farmResponse->json('data'));
     }
 
     private function authenticate(): void

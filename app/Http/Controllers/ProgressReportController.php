@@ -39,7 +39,7 @@ class ProgressReportController extends Controller
 
     public function show(ProgressReport $progressReport): JsonResponse
     {
-        return response()->json($progressReport->load(['project', 'items.structure', 'curvePoints']));
+        return response()->json($progressReport->load(['project', 'items', 'curvePoints']));
     }
 
     public function update(Request $request, ProgressReport $progressReport): JsonResponse
