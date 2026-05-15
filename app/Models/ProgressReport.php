@@ -13,7 +13,6 @@ class ProgressReport extends Model
 
     protected $fillable = [
         'project_id',
-        'visit_id',
         'report_number',
         'cutoff_date',
         'start_date',
@@ -39,11 +38,6 @@ class ProgressReport extends Model
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
-    }
-
-    public function visit(): BelongsTo
-    {
-        return $this->belongsTo(Visit::class);
     }
 
     public function items(): HasMany

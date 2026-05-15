@@ -5,22 +5,10 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FarmContactController;
 use App\Http\Controllers\FarmController;
 use App\Http\Controllers\FarmGeorreferenceController;
-use App\Http\Controllers\FormTemplateController;
 use App\Http\Controllers\ProgressReportController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\SystemsCatalogController;
-use App\Http\Controllers\VisitCommitmentController;
-use App\Http\Controllers\VisitController;
-use App\Http\Controllers\VisitFindingController;
-use App\Http\Controllers\VisitMaterialRequestController;
-use App\Http\Controllers\VisitMeasurementController;
-use App\Http\Controllers\VisitMediaController;
-use App\Http\Controllers\VisitParticipantController;
-use App\Http\Controllers\VisitSignatureController;
-use App\Http\Controllers\VisitStructureController;
-use App\Http\Controllers\VisitSystemReviewController;
-use App\Http\Controllers\VisitTypeController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -40,27 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('structures', StructureController::class);
 
     // Catalogs
-    Route::apiResource('visit-types', VisitTypeController::class);
     Route::apiResource('systems-catalog', SystemsCatalogController::class);
-    Route::apiResource('form-templates', FormTemplateController::class);
-
-    // Visits
-    Route::apiResource('visits', VisitController::class);
-    Route::apiResource('visit-structures', VisitStructureController::class)->except(['show']);
-    Route::apiResource('visit-participants', VisitParticipantController::class)->except(['show']);
-    Route::apiResource('visit-signatures', VisitSignatureController::class)->except(['show']);
-    Route::apiResource('visits.findings', VisitFindingController::class)->shallow()->except(['show']);
-    Route::apiResource('visits.commitments', VisitCommitmentController::class)->shallow()->except(['show']);
-
-    // Media
-    Route::apiResource('visit-media', VisitMediaController::class);
-    Route::post('visit-media/{visitMedia}/annotate', [VisitMediaController::class, 'annotate']);
-
-    // Technical
-    Route::apiResource('visit-system-reviews', VisitSystemReviewController::class)->except(['show']);
-    Route::apiResource('visits.measurements', VisitMeasurementController::class)->shallow()->except(['show']);
-    Route::post('visits/{visit}/material-requests', [VisitMaterialRequestController::class, 'store']);
-    Route::apiResource('visit-material-requests', VisitMaterialRequestController::class)->only(['index', 'update', 'destroy']);
 
     // Projects & progress
     Route::apiResource('projects', ProjectController::class);

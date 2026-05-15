@@ -12,7 +12,7 @@ class FarmController extends Controller
 {
     public function index(): JsonResponse
     {
-        $farms = Farm::with(['client', 'georreference', 'contacts'])->paginate(15);
+        $farms = Farm::with(['client', 'georreference', 'contacts', 'galpones.systems'])->paginate(15);
 
         return FarmResource::collection($farms)->response();
     }
@@ -21,14 +21,14 @@ class FarmController extends Controller
     {
         $farm = Farm::create($request->validated());
 
-        return (new FarmResource($farm->load('client')))
+        return (new FarmResource($farm->load(['client', 'georreference', 'contacts', 'galpones.systems'])))
             ->response()
             ->setStatusCode(201);
     }
 
     public function show(Farm $farm): FarmResource
     {
-        $farm->load(['client', 'georreference', 'contacts']);
+        $farm->load(['client', 'georreference', 'contacts', 'galpones.systems']);
 
         return new FarmResource($farm);
     }
@@ -37,7 +37,7 @@ class FarmController extends Controller
     {
         $farm->update($request->validated());
 
-        return new FarmResource($farm->load('client'));
+        return new FarmResource($farm->load(['client', 'georreference', 'contacts', 'galpones.systems']));
     }
 
     public function destroy(Farm $farm): JsonResponse

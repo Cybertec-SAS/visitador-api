@@ -13,7 +13,6 @@ class ProgressReportController extends Controller
     {
         return response()->json(
             $project->progressReports()
-                ->with(['visit'])
                 ->orderBy('report_number')
                 ->get()
         );
@@ -22,7 +21,6 @@ class ProgressReportController extends Controller
     public function store(Request $request, Project $project): JsonResponse
     {
         $validated = $request->validate([
-            'visit_id' => 'nullable|exists:visits,id',
             'report_number' => 'required|integer|min:1',
             'cutoff_date' => 'required|date',
             'start_date' => 'required|date',
@@ -36,18 +34,17 @@ class ProgressReportController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        return response()->json($project->progressReports()->create($validated)->load(['project', 'visit']), 201);
+        return response()->json($project->progressReports()->create($validated)->load('project'), 201);
     }
 
     public function show(ProgressReport $progressReport): JsonResponse
     {
-        return response()->json($progressReport->load(['project', 'visit', 'items.structure', 'curvePoints']));
+        return response()->json($progressReport->load(['project', 'items.structure', 'curvePoints']));
     }
 
     public function update(Request $request, ProgressReport $progressReport): JsonResponse
     {
         $validated = $request->validate([
-            'visit_id' => 'nullable|exists:visits,id',
             'cutoff_date' => 'sometimes|date',
             'start_date' => 'sometimes|date',
             'end_date' => 'sometimes|date',
@@ -62,7 +59,7 @@ class ProgressReportController extends Controller
 
         $progressReport->update($validated);
 
-        return response()->json($progressReport->load(['project', 'visit']));
+        return response()->json($progressReport->load('project'));
     }
 
     public function destroy(ProgressReport $progressReport): JsonResponse

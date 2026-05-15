@@ -28,7 +28,7 @@ class ClientController extends Controller
 
     public function show(Client $client): ClientResource
     {
-        $client->load('farms.georreference', 'farms.contacts');
+        $client->load('farms.georreference', 'farms.contacts', 'farms.galpones.systems');
 
         return new ClientResource($client);
     }

@@ -22,9 +22,7 @@ class Farm extends Model
         'farm_electric_current',
         'have_own_transformator',
         'is_transformator_feeds_other_installations',
-        'distance_to_neighbor_boundary_m',
         'transformator_are_feeding_installations',
-        'neighboring_properties_notes',
         'have_easy_access_for_trailer',
         'staff_availability',
         'has_storage_warehouse',
@@ -41,7 +39,6 @@ class Farm extends Model
             'have_easy_access_for_trailer' => 'boolean',
             'staff_availability' => 'boolean',
             'has_storage_warehouse' => 'boolean',
-            'distance_to_neighbor_boundary_m' => 'decimal:2',
         ];
     }
 
@@ -58,5 +55,26 @@ class Farm extends Model
     public function contacts(): HasMany
     {
         return $this->hasMany(FarmContact::class);
+    }
+
+    public function structures(): HasMany
+    {
+        return $this->hasMany(Structure::class);
+    }
+
+    public function galpones(): HasMany
+    {
+        return $this->hasMany(Structure::class)
+            ->where('structure_type', Structure::TYPE_GALPON)
+            ->whereNull('parent_structure_id')
+            ->orderBy('sort_order')
+            ->orderBy('name');
+    }
+
+    public function syncTotalGalponesFromStructures(): void
+    {
+        $this->forceFill([
+            'total_galpones' => $this->galpones()->count(),
+        ])->saveQuietly();
     }
 }

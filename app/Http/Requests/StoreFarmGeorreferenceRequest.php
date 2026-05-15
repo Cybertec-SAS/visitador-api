@@ -2,13 +2,21 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\UppercasesInput;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreFarmGeorreferenceRequest extends FormRequest
 {
+    use UppercasesInput;
+
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function uppercaseFields(): array
+    {
+        return ['address', 'town', 'department'];
     }
 
     public function rules(): array

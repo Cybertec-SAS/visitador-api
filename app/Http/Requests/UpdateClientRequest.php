@@ -2,13 +2,21 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\UppercasesInput;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateClientRequest extends FormRequest
 {
+    use UppercasesInput;
+
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function uppercaseFields(): array
+    {
+        return ['razon_social', 'nit'];
     }
 
     public function rules(): array
