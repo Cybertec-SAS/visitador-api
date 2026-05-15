@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('progress_report_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('progress_report_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('structure_id')->nullable()->constrained()->nullOnDelete();
             $table->string('section_name')->nullable();
             $table->string('activity_code')->nullable();
             $table->string('activity_name');

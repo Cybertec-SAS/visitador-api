@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('progress_reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('project_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('visit_id')->nullable()->constrained()->nullOnDelete();
             $table->unsignedInteger('report_number');
             $table->date('cutoff_date');
             $table->date('start_date');
