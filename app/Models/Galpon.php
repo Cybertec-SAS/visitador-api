@@ -20,9 +20,7 @@ class Galpon extends Model
         'status',
         'description',
         'dimensions_json',
-        'technical_attributes_json',s errores son todos del mismo tipo: el analizador no está resolviendo las clases nuevas de galpones. Voy a comprobar si los archivos quedaron realmente en disco y si hay algún detalle de namespace o autoload bloqueando el índice.
-
-
+        'technical_attributes_json',
         'observations',
         'sort_order',
     ];
