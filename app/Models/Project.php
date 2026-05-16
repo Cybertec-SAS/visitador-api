@@ -11,7 +11,7 @@ class Project extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['client_id', 'farm_id', 'name', 'code', 'status', 'start_date', 'end_date', 'description'];
+    protected $fillable = ['client_id', 'farm_id', 'name', 'code', 'tipo', 'linea', 'status', 'start_date', 'end_date', 'description'];
 
     protected function casts(): array
     {

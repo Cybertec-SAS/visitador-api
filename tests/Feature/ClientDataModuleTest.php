@@ -4,7 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\Client;
 use App\Models\Farm;
+use App\Models\Galpon;
+use App\Models\GalponSystem;
 use App\Models\Role;
+use App\Models\SystemsCatalog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -97,7 +100,7 @@ class ClientDataModuleTest extends TestCase
         ]);
     }
 
-    public function test_structure_endpoints_are_unavailable_and_farm_payload_stays_flat(): void
+    public function test_farm_exposes_galpones_and_their_systems_with_dimensions(): void
     {
         $this->authenticate();
 
@@ -112,18 +115,175 @@ class ClientDataModuleTest extends TestCase
             'client_id' => $client->id,
             'nombre' => 'Finca Demo',
             'farm_voltage' => '220V',
-            'total_galpones' => 4,
         ]);
 
         $this->getJson('/api/structures')->assertNotFound();
+
+        $galponResponse = $this->postJson("/api/farms/{$farm->id}/galpones", [
+            'name' => 'Galpon 1',
+            'code' => 'gal-01',
+            'status' => 'active',
+            'dimensions_json' => [
+                'largo_m' => 100,
+                'ancho_m' => 12,
+                'altura_canal_m' => 2.8,
+                'altura_cumbrera_m' => 4.2,
+            ],
+            'technical_attributes_json' => [
+                'tipo_estructura' => 'convencional',
+                'tipo_cubierta' => 'dos aguas',
+            ],
+            'observations' => 'requiere aislamiento',
+        ]);
+
+        $galponResponse
+            ->assertCreated()
+            ->assertJsonPath('data.name', 'GALPON 1')
+            ->assertJsonPath('data.code', 'GAL-01')
+            ->assertJsonPath('data.technical_attributes_json.tipo_estructura', 'CONVENCIONAL')
+            ->assertJsonPath('data.dimensions_json.largo_m', 100);
+
+        $galponId = $galponResponse->json('data.id');
+        $system = SystemsCatalog::query()->where('code', 'ventiladores')->firstOrFail();
+
+        $galponSystemResponse = $this->postJson("/api/galpones/{$galponId}/systems", [
+            'system_id' => $system->id,
+            'quantity' => 8,
+            'notes' => 'kit lateral',
+            'technical_attributes_json' => [
+                'capacidad' => '36 pulgadas',
+            ],
+        ]);
+
+        $galponSystemResponse
+            ->assertCreated()
+            ->assertJsonPath('data.quantity', 8)
+            ->assertJsonPath('data.notes', 'KIT LATERAL')
+            ->assertJsonPath('data.technical_attributes_json.capacidad', '36 PULGADAS')
+            ->assertJsonPath('data.system.code', 'ventiladores');
+
+        $galponSystemId = $galponSystemResponse->json('data.id');
+
+        $this->patchJson("/api/galpones/{$galponId}", [
+            'dimensions_json' => [
+                'largo_m' => 110,
+                'ancho_m' => 13,
+                'altura_canal_m' => 3.0,
+                'altura_cumbrera_m' => 4.5,
+            ],
+            'observations' => 'listo para montaje',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.dimensions_json.largo_m', 110)
+            ->assertJsonPath('data.observations', 'LISTO PARA MONTAJE');
+
+        $this->patchJson("/api/galpon-systems/{$galponSystemId}", [
+            'quantity' => 10,
+            'notes' => 'ajuste final',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.quantity', 10)
+            ->assertJsonPath('data.notes', 'AJUSTE FINAL');
 
         $farmResponse = $this->getJson("/api/farms/{$farm->id}");
 
         $farmResponse
             ->assertOk()
-            ->assertJsonPath('data.total_galpones', 4);
+            ->assertJsonPath('data.total_galpones', 1)
+            ->assertJsonPath('data.galpones.0.name', 'GALPON 1')
+            ->assertJsonPath('data.galpones.0.dimensions_json.largo_m', 110)
+            ->assertJsonPath('data.galpones.0.systems.0.quantity', 10)
+            ->assertJsonPath('data.galpones.0.systems.0.system.code', 'ventiladores');
 
-        self::assertArrayNotHasKey('galpones', $farmResponse->json('data'));
+        $this->assertDatabaseHas('galpones', [
+            'id' => $galponId,
+            'farm_id' => $farm->id,
+            'name' => 'GALPON 1',
+            'code' => 'GAL-01',
+            'observations' => 'LISTO PARA MONTAJE',
+        ]);
+
+        $this->assertDatabaseHas('galpon_systems', [
+            'id' => $galponSystemId,
+            'galpon_id' => $galponId,
+            'system_id' => $system->id,
+            'quantity' => 10,
+            'notes' => 'AJUSTE FINAL',
+        ]);
+    }
+
+    public function test_project_accepts_tipo_and_linea_with_uppercase_normalization(): void
+    {
+        $this->authenticate();
+
+        $client = Client::create([
+            'razon_social' => 'CLIENTE PROYECTOS SAS',
+            'nit' => '901112223',
+            'email' => 'proyectos@example.com',
+            'phone_number' => '3001112233',
+        ]);
+
+        $farm = Farm::create([
+            'client_id' => $client->id,
+            'nombre' => 'Granja Proyecto',
+            'farm_voltage' => '440V',
+        ]);
+
+        $response = $this->postJson('/api/projects', [
+            'client_id' => $client->id,
+            'farm_id' => $farm->id,
+            'name' => 'Proyecto Alpha',
+            'code' => 'pr-001',
+            'tipo' => 'ambiente controlado',
+            'linea' => 'avicultura: engorde de pollo',
+            'status' => 'active',
+            'description' => 'Implementacion integral',
+        ]);
+
+        $response
+            ->assertCreated()
+            ->assertJsonPath('name', 'PROYECTO ALPHA')
+            ->assertJsonPath('code', 'PR-001')
+            ->assertJsonPath('tipo', 'AMBIENTE CONTROLADO')
+            ->assertJsonPath('linea', 'AVICULTURA: ENGORDE DE POLLO')
+            ->assertJsonPath('description', 'IMPLEMENTACION INTEGRAL');
+
+        $this->assertDatabaseHas('projects', [
+            'name' => 'PROYECTO ALPHA',
+            'code' => 'PR-001',
+            'tipo' => 'AMBIENTE CONTROLADO',
+            'linea' => 'AVICULTURA: ENGORDE DE POLLO',
+            'description' => 'IMPLEMENTACION INTEGRAL',
+        ]);
+    }
+
+    public function test_systems_catalog_exposes_the_updated_20_active_systems(): void
+    {
+        $this->authenticate();
+
+        $response = $this->getJson('/api/systems-catalog');
+
+        $response->assertOk();
+
+        $systems = collect($response->json());
+
+        self::assertCount(20, $systems);
+        self::assertTrue($systems->contains('code', 'comedero_automatico'));
+        self::assertTrue($systems->contains('code', 'bebedero_niple'));
+        self::assertTrue($systems->contains('code', 'tablero_control_potencia'));
+        self::assertTrue($systems->contains('code', 'sistema_comunicacion'));
+        self::assertTrue($systems->contains('code', 'aislamiento'));
+
+        $this->assertDatabaseHas('systems_catalog', [
+            'code' => 'extractores',
+            'name' => 'Extractores',
+            'is_active' => true,
+        ]);
+
+        $this->assertDatabaseMissing('systems_catalog', [
+            'code' => 'malla',
+            'is_active' => true,
+        ]);
     }
 
     private function authenticate(): void

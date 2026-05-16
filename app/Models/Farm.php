@@ -56,4 +56,16 @@ class Farm extends Model
     {
         return $this->hasMany(FarmContact::class);
     }
+
+    public function galpones(): HasMany
+    {
+        return $this->hasMany(Galpon::class)->orderBy('sort_order')->orderBy('name');
+    }
+
+    public function refreshTotalGalpones(): void
+    {
+        $this->forceFill([
+            'total_galpones' => $this->galpones()->count(),
+        ])->saveQuietly();
+    }
 }

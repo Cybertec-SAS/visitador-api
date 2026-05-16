@@ -30,6 +30,7 @@ class FarmResource extends JsonResource
             'client' => new ClientResource($this->whenLoaded('client')),
             'georreference' => new FarmGeorreferenceResource($this->whenLoaded('georreference')),
             'contacts' => FarmContactResource::collection($this->whenLoaded('contacts')),
+            'galpones' => GalponResource::collection($this->whenLoaded('galpones')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

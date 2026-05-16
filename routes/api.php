@@ -5,6 +5,8 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FarmContactController;
 use App\Http\Controllers\FarmController;
 use App\Http\Controllers\FarmGeorreferenceController;
+use App\Http\Controllers\GalponController;
+use App\Http\Controllers\GalponSystemController;
 use App\Http\Controllers\ProgressReportController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SystemsCatalogController;
@@ -24,6 +26,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('farms', FarmController::class);
     Route::apiResource('farm-georreferences', FarmGeorreferenceController::class);
     Route::apiResource('farm-contacts', FarmContactController::class);
+    Route::get('/farms/{farm}/galpones', [GalponController::class, 'index']);
+    Route::post('/farms/{farm}/galpones', [GalponController::class, 'store']);
+    Route::get('/galpones/{galpon}', [GalponController::class, 'show']);
+    Route::match(['put', 'patch'], '/galpones/{galpon}', [GalponController::class, 'update']);
+    Route::delete('/galpones/{galpon}', [GalponController::class, 'destroy']);
+    Route::get('/galpones/{galpon}/systems', [GalponSystemController::class, 'index']);
+    Route::post('/galpones/{galpon}/systems', [GalponSystemController::class, 'store']);
+    Route::get('/galpon-systems/{galponSystem}', [GalponSystemController::class, 'show']);
+    Route::match(['put', 'patch'], '/galpon-systems/{galponSystem}', [GalponSystemController::class, 'update']);
+    Route::delete('/galpon-systems/{galponSystem}', [GalponSystemController::class, 'destroy']);
 
     // Catalogs
     Route::apiResource('systems-catalog', SystemsCatalogController::class);

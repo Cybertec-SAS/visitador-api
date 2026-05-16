@@ -21,14 +21,14 @@ class FarmController extends Controller
     {
         $farm = Farm::create($request->validated());
 
-        return (new FarmResource($farm->load(['client', 'georreference', 'contacts'])))
+        return (new FarmResource($farm->load(['client', 'georreference', 'contacts', 'galpones.systems.system'])))
             ->response()
             ->setStatusCode(201);
     }
 
     public function show(Farm $farm): FarmResource
     {
-        $farm->load(['client', 'georreference', 'contacts']);
+        $farm->load(['client', 'georreference', 'contacts', 'galpones.systems.system']);
 
         return new FarmResource($farm);
     }
@@ -37,7 +37,7 @@ class FarmController extends Controller
     {
         $farm->update($request->validated());
 
-        return new FarmResource($farm->load(['client', 'georreference', 'contacts']));
+        return new FarmResource($farm->load(['client', 'georreference', 'contacts', 'galpones.systems.system']));
     }
 
     public function destroy(Farm $farm): JsonResponse

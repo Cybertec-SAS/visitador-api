@@ -14,6 +14,8 @@ return new class extends Migration
             $table->foreignId('farm_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('code')->nullable();
+            $table->string('tipo')->nullable();
+            $table->string('linea')->nullable();
             $table->enum('status', ['draft', 'active', 'paused', 'completed', 'cancelled'])->default('draft');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
