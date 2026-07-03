@@ -26,7 +26,6 @@ class FarmResource extends JsonResource
             'has_storage_warehouse' => $this->has_storage_warehouse,
             'how_many_warehouses' => $this->how_many_warehouses,
             'total_galpones' => $this->total_galpones,
-            'galpones_a_cotizar' => $this->galpones_a_cotizar,
             'client' => new ClientResource($this->whenLoaded('client')),
             'georreference' => new FarmGeorreferenceResource($this->whenLoaded('georreference')),
             'contacts' => FarmContactResource::collection($this->whenLoaded('contacts')),

@@ -43,7 +43,6 @@ class StoreFarmRequest extends FormRequest
             'has_storage_warehouse' => ['nullable', 'boolean'],
             'how_many_warehouses' => ['nullable', 'integer', 'min:0'],
             'total_galpones' => ['nullable', 'integer', 'min:0'],
-            'galpones_a_cotizar' => ['nullable', 'integer', 'min:0'],
         ];
     }
 }
