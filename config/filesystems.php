@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Visits Evidence Disk
+    |--------------------------------------------------------------------------
+    |
+    | Disk used to store visit photo evidence. Defaults to the private local
+    | "visits" disk below. Point it at a private S3-compatible bucket (e.g. a
+    | Supabase Storage bucket) by setting VISITS_DISK=s3 and the AWS_* vars.
+    |
+    */
+
+    'visits_disk' => env('VISITS_DISK', 'visits'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
@@ -43,6 +56,14 @@ return [
             'root' => storage_path('app/public'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
             'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
+        'visits' => [
+            'driver' => 'local',
+            'root' => storage_path('app/visits'),
+            'visibility' => 'private',
             'throw' => false,
             'report' => false,
         ],

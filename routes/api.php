@@ -10,6 +10,8 @@ use App\Http\Controllers\GalponSystemController;
 use App\Http\Controllers\ProgressReportController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SystemsCatalogController;
+use App\Http\Controllers\VisitController;
+use App\Http\Controllers\VisitPhotoController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
@@ -43,4 +45,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Projects & progress
     Route::apiResource('projects', ProjectController::class);
     Route::apiResource('projects.progress-reports', ProgressReportController::class)->shallow();
+
+    // Visits
+    Route::apiResource('visits', VisitController::class);
+    Route::post('/visits/{visit}/fotos', [VisitPhotoController::class, 'store']);
+    Route::get('/visits/{visit}/fotos/{photo}', [VisitPhotoController::class, 'show'])->name('visits.fotos.show');
+    Route::delete('/visits/{visit}/fotos/{photo}', [VisitPhotoController::class, 'destroy']);
 });
